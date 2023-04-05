@@ -1,34 +1,31 @@
 <?php
 session_start();
 include('includes/config.php');
+error_reporting(0);
 if(strlen($_SESSION['alogin'])==0)
     {   
 header('location:index.php');
 }
 else{
 
-// Code for Insertion
-if(isset($_POST['submit']))
-{
-$sesssion=$_POST['sesssion'];
-$ret=mysqli_query($con,"insert into session(session) values('$sesssion')");
-if($ret)
-{
-echo '<script>alert("Session Created Successfully !!")</script>';
-echo '<script>window.location.href=session.php</script>';
-}else{
-echo '<script>alert("Error : Session not created")</script>';
-echo '<script>window.location.href=session.php</script>'; 
-}
-}
 
 // Code for Deletion
 if(isset($_GET['del']))
 {
-mysqli_query($con,"delete from session where id = '".$_GET['id']."'");
-echo '<script>alert("Session Deleted")</script>';
-echo '<script>window.location.href=session.php</script>'; 
+mysqli_query($con,"delete from students where StudentRegno = '".$_GET['id']."'");
+echo '<script>alert("Student Record Deleted Successfully !!")</script>';
+echo '<script>window.location.href=manage-students.php</script>';
       }
+
+//Code for Password Rest
+     if(isset($_GET['pass']))
+      {
+        $password="Test@123";
+        $newpass=md5($password);
+              mysqli_query($con,"update students set password='$newpass' where StudentRegno = '".$_GET['id']."'");
+              echo '<script>alert("Password Reset. New Password is Test@123")</script>';
+echo '<script>window.location.href=manage-students.php</script>';
+      } 
 ?>
 
 <!DOCTYPE html>
@@ -38,7 +35,7 @@ echo '<script>window.location.href=session.php</script>';
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Admin | Session</title>
+    <title>Admin | Course</title>
     <link href="../assets/css/bootstrap.css" rel="stylesheet" />
     <link href="../assets/css/font-awesome.css" rel="stylesheet" />
     <link href="../assets/css/style.css" rel="stylesheet" />
@@ -57,38 +54,17 @@ echo '<script>window.location.href=session.php</script>';
         <div class="container">
               <div class="row">
                     <div class="col-md-12">
-                        <h1 class="page-head-line">Add session  </h1>
+                        <h1 class="page-head-line">Course  </h1>
                     </div>
                 </div>
                 <div class="row" >
-                  <div class="col-md-3"></div>
-                    <div class="col-md-6">
-                        <div class="panel panel-default">
-                        <div class="panel-heading">
-                           Session
-                        </div>
-<font color="green" align="center"><?php echo htmlentities($_SESSION['msg']);?><?php echo htmlentities($_SESSION['msg']="");?></font>
-
-
-                        <div class="panel-body">
-                       <form name="session" method="post">
-   <div class="form-group">
-    <label for="session">Create Session </label>
-    <input type="text" class="form-control" id="sesssion" name="sesssion" placeholder="Session" />
-  </div>
- <button type="submit" name="submit" class="btn btn-default">Submit</button>
-</form>
-                            </div>
-                            </div>
-                    </div>
-                  
-                </div>
+                 
                 <font color="red" align="center"><?php echo htmlentities($_SESSION['delmsg']);?><?php echo htmlentities($_SESSION['delmsg']="");?></font>
                 <div class="col-md-12">
                     <!--    Bordered Table  -->
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Manage Session
+                            Manage Course
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
@@ -97,14 +73,16 @@ echo '<script>window.location.href=session.php</script>';
                                     <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Session</th>
-                                            <th>Creation Date</th>
-                                            <th>Action</th>
+                                            <th>Reg No </th>
+                                            <th>Student Name </th>
+                                            <th> Pincode</th>
+                                             <th>Reg Date</th>
+                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
 <?php
-$sql=mysqli_query($con,"select * from session");
+$sql=mysqli_query($con,"select * from students");
 $cnt=1;
 while($row=mysqli_fetch_array($sql))
 {
@@ -113,11 +91,18 @@ while($row=mysqli_fetch_array($sql))
 
                                         <tr>
                                             <td><?php echo $cnt;?></td>
-                                            <td><?php echo htmlentities($row['session']);?></td>
-                                            <td><?php echo htmlentities($row['creationDate']);?></td>
+                                            <td><?php echo htmlentities($row['StudentRegno']);?></td>
+                                            <td><?php echo htmlentities($row['studentName']);?></td>
+                                            <td><?php echo htmlentities($row['pincode']);?></td>
+                                            <td><?php echo htmlentities($row['creationdate']);?></td>
                                             <td>
-  <a href="session.php?id=<?php echo $row['id']?>&del=delete" onClick="return confirm('Are you sure you want to delete?')">
+                                            <a href="edit-student-profile.php?id=<?php echo $row['StudentRegno']?>">
+<button class="btn btn-primary"><i class="fa fa-edit "></i> Edit</button> </a>                                        
+<a href="manage-students.php?id=<?php echo $row['StudentRegno']?>&del=delete" onClick="return confirm('Are you sure you want to delete?')">
                                             <button class="btn btn-danger">Delete</button>
+</a>
+<a href="manage-students.php?id=<?php echo $row['StudentRegno']?>&pass=update" onClick="return confirm('Are you sure you want to reset password?')">
+<button type="submit" name="submit" id="submit" class="btn btn-default">Reset Password</button>
 </a>
                                             </td>
                                         </tr>
